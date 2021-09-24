@@ -1,12 +1,37 @@
+---
+.cloud_sdk_version: &cloud_sdk_version "358.0.0"
 apiVersion: skaffold/v2beta23
 kind: Config
 build:
   local:
     push: false
+    useBuildkit: true
+    concurrency: 0
   artifacts:
     - image: ghcr.io/apcat/bigtable-emulator
       context: bigtable-emulator
+      docker:
+        cacheFrom:
+          - ghcr.io/apcat/bigtable-emulator:latest
+        buildArgs:
+          BUILDKIT_INLINE_CACHE: "1"
+          CLOUD_SDK_VERSION: *cloud_sdk_version
     - image: ghcr.io/apcat/firestore-emulator
       context: firestore-emulator
+      docker:
+        cacheFrom:
+          - ghcr.io/apcat/firestore-emulator:latest
+        buildArgs:
+          BUILDKIT_INLINE_CACHE: "1"
+          CLOUD_SDK_VERSION: *cloud_sdk_version
     - image: ghcr.io/apcat/pubsub-emulator
       context: pubsub-emulator
+      docker:
+        cacheFrom:
+          - ghcr.io/apcat/pubsub-emulator:latest
+        buildArgs:
+          BUILDKIT_INLINE_CACHE: "1"
+          CLOUD_SDK_VERSION: *cloud_sdk_version
+  tagPolicy:
+    envTemplate:
+      template: *cloud_sdk_version
