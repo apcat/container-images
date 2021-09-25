@@ -1,0 +1,40 @@
+name: Build
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build container images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ~/.skaffold/cache
+          key: ${{ runner.os }}-skaffold-${{ hashFiles('skaffold.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-skaffold-
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+      - name: Set up Skaffold
+        run: |
+          gcloud config set core/disable_prompts true
+          gcloud config set core/disable_usage_reporting true
+          gcloud config set component_manager/disable_update_check true
+          gcloud components install skaffold
+          skaffold version
+          skaffold config set --global collect-metrics false
+      - name: skaffold build
+        env:
+          CLOUDSDK_CORE_VERBOSITY: none
+        run: |
+          skaffold build
