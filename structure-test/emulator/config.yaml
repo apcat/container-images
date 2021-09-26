@@ -1,0 +1,13 @@
+schemaVersion: "2.0.0"
+commandTests:
+  - name: "gcloud command"
+    command: "which"
+    args: ["gcloud"]
+    expectedOutput: ["/google-cloud-sdk/bin/gcloud"]
+  - name: "gcloud version"
+    command: "gcloud"
+    args: ["version"]
+    expectedOutput:
+      - ".*bigtable.*"
+      - ".*cloud-firestore-emulator.*"
+      - ".*pubsub-emulator.*"

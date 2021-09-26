@@ -35,3 +35,13 @@ build:
   tagPolicy:
     envTemplate:
       template: *cloud_sdk_version
+test:
+  - image: ghcr.io/apcat/bigtable-emulator
+    structureTests:
+      - "./structure-test/emulator/*"
+  - image: ghcr.io/apcat/firestore-emulator
+    structureTests:
+      - "./structure-test/emulator/*"
+  - image: ghcr.io/apcat/pubsub-emulator
+    structureTests:
+      - "./structure-test/emulator/*"
