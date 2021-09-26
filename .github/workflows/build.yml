@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - master
+  push:
+    branches:
+      - master
 
 jobs:
   build:
@@ -33,8 +36,23 @@ jobs:
           gcloud components install skaffold
           skaffold version
           skaffold config set --global collect-metrics false
-      - name: skaffold build
+      - name: Set up container-structure-test
+        run: |
+          cd /tmp
+          curl -LO https://storage.googleapis.com/container-structure-test/latest/container-structure-test-linux-amd64
+          chmod +x container-structure-test-linux-amd64
+          sudo mv container-structure-test-linux-amd64 /usr/local/bin/container-structure-test
+      - name: skaffold build and test
+        if: github.event_name != 'push'
         env:
           CLOUDSDK_CORE_VERBOSITY: none
         run: |
-          skaffold build
+          skaffold build --file-output=tags.json
+          skaffold test --build-artifacts=tags.json
+      - name: skaffold build and push
+        if: github.event_name == 'push'
+        env:
+          CLOUDSDK_CORE_VERBOSITY: none
+        run: |
+          skaffold build --push
+          skaffold build --tag=latest --push
